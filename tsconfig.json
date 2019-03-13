@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "bld",
+    "target":"es5",
+    "lib":["esnext"],
+    "module": "commonjs"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}
