@@ -3,7 +3,7 @@
     "rootDir": "src",
     "outDir": "bld",
     "target":"es5",
-    "lib":["esnext"],
+    "lib":["esnext", "dom"],
     "module": "commonjs"
   },
   "include": ["src/**/*.ts"],
