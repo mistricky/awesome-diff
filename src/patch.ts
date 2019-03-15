@@ -13,9 +13,7 @@ interface OperationHandler {
 const OPERATION_HANDLER:OperationHandler = {
   move(vdomNodeLayer:VdomNodeLayer,payload:MovePayload) {
     const {originIndex, targetIndex} = payload
-    let result= move(vdomNodeLayer, originIndex, targetIndex)
-    console.info(payload)
-    return result
+    return move(vdomNodeLayer, originIndex, targetIndex)
   },
   add(vdomNodeLayer:VdomNodeLayer, payload:AddPayload<VdomNode>) {
     const {targetIndex, targets} = payload
