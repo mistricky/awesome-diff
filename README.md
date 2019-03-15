@@ -7,14 +7,19 @@ Diff strategy O(n).
 developement with `TypeScript`, so you need run the following script before start.
 
 ```
-npm install
+> npm install
+> npm run compile
+> npm run start:example
 ```
 
 **Yarn**
 
 ```
-yarn install
+> yarn install
+> yarn compile
+> yarn start:example
 ```
+
 
 ## Example
 
