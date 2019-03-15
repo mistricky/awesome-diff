@@ -4,7 +4,7 @@ Diff strategy O(n).
 
 ## Usage
 
-developement with `TypeScript`, so you need run the following script before you start.
+developement with `TypeScript`, so you need run the following script before start.
 
 ```
 npm install
