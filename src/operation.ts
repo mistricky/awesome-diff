@@ -1,3 +1,4 @@
+import { VdomNode } from "./diff";
 
 export type OPERATIONS = 'move' | 'add' | 'remove'
 
@@ -8,11 +9,11 @@ export interface MovePayload {
 
 export interface AddPayload<T> {
   targetIndex:number,
-  target:T
+  targets:T[]
 }
 
 export interface RemovePayload {
-  targetIndex:number
+  targetIndexes:number[]
 }
 
 export interface Operation<T extends OPERATIONS = OPERATIONS, AddTarget = unknown> {
@@ -27,14 +28,26 @@ function duplicatePush(operations:Operation<OPERATIONS>[], operation:Operation){
   return duplicate
 }
 
-export function add<T>(operations:Operation<OPERATIONS, T>[], targetIndex:number, target:T){
-  return duplicatePush(operations, {name:'add', payload:{targetIndex, target}})
+export function add<T = VdomNode>(operations:Operation<OPERATIONS, T>[], targetIndex:number, ...targets:T[]){
+  let nodes = targets.filter(node => node)
+
+  if(!nodes.length){
+    return operations
+  }
+
+  return duplicatePush(operations, {name:'add', payload:{targetIndex, targets:[].concat(...targets)}})
 }
 
-export function remove(operations:Operation<OPERATIONS>[], targetIndex:number){
-  return duplicatePush(operations, {name:'remove', payload:{targetIndex}})
+export function remove(operations:Operation<OPERATIONS>[], ...targets:VdomNode[]){
+  let indexes = targets.filter(node => node).map((_, index) => index)
+
+  if(!indexes.length) {
+    return operations
+  }
+
+  return duplicatePush(operations, {name:'remove', payload:{targetIndexes:[].concat(...indexes)}})
 }
 
 export function move(operations:Operation<OPERATIONS>[], originIndex:number, targetIndex:number){
-  return duplicatePush(operations, {name:'remove', payload:{targetIndex, originIndex}})
+  return duplicatePush(operations, {name:'move', payload:{targetIndex, originIndex}})
 }
