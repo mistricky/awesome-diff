@@ -120,5 +120,5 @@ These are the operations that need to be patched.
   { key: 'e' } ]
 ```
 
-## LISENCE
+## LICENCE
 MIT
