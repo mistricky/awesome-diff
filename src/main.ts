@@ -1,9 +1,5 @@
 import { VdomNode, diff } from "./diff";
-
-interface Content {
-  key:string,
-  body:string
-}
+import { parseOperations } from "./patch";
 
 // mock data
 let layer1:VdomNode[] = [
@@ -28,6 +24,6 @@ let layer2:VdomNode[] = [
   {key:'a'},
 ]
 
-const patch = diff(layer1, layer2)
+const patches = diff(layer1, layer2)
 
-console.info(patch)
+console.info(parseOperations(layer1, patches))
