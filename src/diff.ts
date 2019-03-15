@@ -19,14 +19,12 @@ interface Indexes {
 }
 
 export function diff(oldVdom:VdomNodeLayer, newVdom:VdomNodeLayer){
-  let resultVdom = [...oldVdom]
-
   let oldStart= 0,
       oldEnd= oldVdom.length - 1,
       newStart= 0,
       newEnd= newVdom.length - 1
 
-  return compare(oldStart, oldEnd, newStart, newEnd, oldVdom, newVdom, [])
+  return compare(oldStart, oldEnd, newStart, newEnd, [...oldVdom], newVdom, [])
 }
 
 export function compare(
@@ -38,8 +36,6 @@ export function compare(
   newVdom:VdomNodeLayer,
   operations:Operation<OPERATIONS>[]
 ){
-  console.info(oldStart, oldEnd, newStart, newEnd)
-  console.info(oldVdom[oldEnd], newVdom[newEnd])
   if(oldStart > oldEnd || newStart > newEnd){
     return operations
   }
@@ -93,7 +89,6 @@ export function compare(
     if(compareNode(oldVdom[cursor], newVdom[newStart])){
       hasNewStartNode = false
       target = oldVdom[cursor]
-      oldVdom[cursor] = undefined
       operations.push({name:'move',payload:{originIndex:cursor,targetIndex:oldStart}})
       targetIndex = oldStart;
       newStart++;
@@ -110,7 +105,6 @@ export function compare(
     if(compareNode(oldVdom[cursor], newVdom[newEnd])){
       hasNewEndNode = false
       target = oldVdom[cursor]
-      oldVdom[cursor] = undefined
       operations.push({name:'move',payload:{originIndex:cursor,targetIndex:oldEnd}})
       targetIndex = oldEnd;//asd
       newEnd--;
@@ -127,89 +121,6 @@ export function compare(
   return compare(oldStart, oldEnd, newStart, newEnd, oldVdom, newVdom, operations)
 }
 
-// function compareIndex(start:number ,end:number):boolean{
-//   return start > end
-// }
-
-// function attachOperation(indexes:Indexes, oldVdom:VdomNodeLayer, newVdom:VdomNodeLayer){
-//   return new Proxy(indexes, {
-//     set(target:Indexes, indexName:string, value:number){
-//       const {oldStart, newStart, oldEnd, newEnd} = target
-
-//       if(oldStart > oldEnd || newStart > newEnd){
-
-//       }
-
-//       // compare start and end
-//       if(compare(oldVdom[oldStart], newVdom[newStart])){
-//         indexes.oldStart++;
-//         indexes.newStart++;
-//       }
-
-//       if(compare(oldVdom[oldEnd], newVdom[newEnd])){
-//         indexes.oldEnd--;
-//         indexes.newEnd--
-//     }
-
-//       return Reflect.set(target, indexName, value)
-//     }
-//   })
-// }
-
-// function moveRule(indexes:Indexes, oldVdom:VdomNodeLayer, newVdom:VdomNodeLayer){
-//   let {oldStart, oldEnd, newStart, newEnd} = indexes
-
-//   let hasNewStartNode = false;
-//   let hasNewEndNode = false
-//   while(cursor <= oldEnd){
-//     // move node to start of layer
-//     if(compare(oldVdom[cursor], newVdom[newStart])){
-//       hasNewStartNode = true
-//       resultVdom = moveNode(resultVdom, cursor, oldStart)
-//       indexes.oldStart++;
-
-//       // is last element
-//       if(cursor === oldEnd){
-//         indexes.oldEnd--;
-//       }
-//     }
-
-//     // move node to end of layer
-//     if(compare(oldVdom[cursor], newVdom[newEnd])){
-//       hasNewEndNode = true
-//       resultVdom = moveNode(resultVdom, cursor, oldEnd)
-//       indexes.oldEnd--;
-
-//       // is start element
-//       if(cursor === oldStart){
-//         indexes.oldStart++;
-//       }
-//     }
-//   }
-
-//   // parse traverse result
-//   if(hasNewEndNode){
-//     resultVdom.push(newVdom[newEnd])
-//     indexes.newEnd--;
-//   }
-
-//   if(hasNewStartNode){
-//     resultVdom.push(newVdom[newStart])
-//     indexes.newStart++;
-//   }
-// }
-
 function compareNode(oldVdom:VdomNode, newVdom:VdomNode){
   return oldVdom && newVdom && oldVdom.key === newVdom.key
 }
-
-// // move
-// function moveNode(vdomLayer:VdomNodeLayer, originIndex:number, targetIndex:number):VdomNodeLayer{
-//   let arr = vdomLayer.slice()
-//   let node = arr[originIndex]
-
-//   arr.splice(originIndex, 1)
-//   arr.splice(targetIndex, 0, node)
-
-//   return arr
-// }
