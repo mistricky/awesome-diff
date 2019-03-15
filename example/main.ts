@@ -1,5 +1,5 @@
-import { VdomNode, diff } from "./diff";
-import { parseOperations } from "./patch";
+import { VdomNode, diff } from "../bld/diff";
+import { parseOperations } from "../bld/patch";
 
 // mock data
 let layer1:VdomNode[] = [
@@ -24,3 +24,5 @@ let layer2:VdomNode[] = [
 
 const patches = diff(layer1,layer2)
 const patchResult = parseOperations(layer1, patches)
+
+console.info(patchResult)
