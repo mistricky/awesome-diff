@@ -1,4 +1,5 @@
-import { VdomNode } from "./diff";
+import { VdomNode, VdomNodeLayer } from "./diff";
+import { filterUndefined } from "./utils";
 
 export type OPERATIONS = 'move' | 'add' | 'remove'
 
@@ -38,8 +39,22 @@ export function add<T = VdomNode>(operations:Operation<OPERATIONS, T>[], targetI
   return duplicatePush(operations, {name:'add', payload:{targetIndex, targets:[].concat(...targets)}})
 }
 
-export function remove(operations:Operation<OPERATIONS>[], ...targets:VdomNode[]){
-  let indexes = targets.filter(node => node).map((_, index) => index)
+export function remove(operations:Operation<OPERATIONS>[], oldVdom: VdomNodeLayer, sliceStart:number, sliceEnd:number){
+  let count = 0
+  let indexes = oldVdom
+    .map((node, index) => {
+      if(index >= sliceStart && index <= sliceEnd){
+        if(node === undefined){
+          count++;
+        } else {
+          return index - count
+        }
+      } else {
+        return null
+      }
+    })
+
+  indexes = filterUndefined(indexes)
 
   if(!indexes.length) {
     return operations
@@ -48,6 +63,26 @@ export function remove(operations:Operation<OPERATIONS>[], ...targets:VdomNode[]
   return duplicatePush(operations, {name:'remove', payload:{targetIndexes:[].concat(...indexes)}})
 }
 
-export function move(operations:Operation<OPERATIONS>[], originIndex:number, targetIndex:number){
+export function move(operations:Operation<OPERATIONS>[], VdomNode:VdomNodeLayer, originIndex:number, targetIndex:number){
+  let undefineds = 0
+
+  const OPERATE_METHODS = {
+    [originIndex]:() => originIndex -= undefineds,
+    [targetIndex]:() => targetIndex -= undefineds
+  }
+
+  for(let index of Object.keys(VdomNode)){
+    let operationFunc =  OPERATE_METHODS[index]
+
+    if(operationFunc){
+      operationFunc()
+      continue
+    }
+
+    if(VdomNode[index] === undefined){
+      undefineds++
+    }
+  }
+
   return duplicatePush(operations, {name:'move', payload:{targetIndex, originIndex}})
 }
