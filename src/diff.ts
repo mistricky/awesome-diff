@@ -1,4 +1,4 @@
-import { Operation, OPERATIONS } from "./operation";
+import { Operation, OPERATIONS, move, add, remove } from "./operation";
 
 export interface VdomNode {
   key:string,
@@ -9,13 +9,6 @@ export type VdomNodeLayer = VdomNode[]
 export interface UpdateIndexTuple {
   isDone:boolean
   value:number
-}
-
-interface Indexes {
-  oldStart:number,
-  newStart:number,
-  oldEnd:number,
-  newEnd:number
 }
 
 export function diff(oldVdom:VdomNodeLayer, newVdom:VdomNodeLayer){
@@ -37,6 +30,16 @@ export function compare(
   operations:Operation<OPERATIONS>[]
 ){
   if(oldStart > oldEnd || newStart > newEnd){
+    // is add
+    if(newStart <= newEnd){
+      operations = add(operations, oldEnd, newVdom.slice(newStart, newEnd + 1))
+    }
+
+    // is remove
+    if(oldStart <= oldEnd){
+      operations = remove(operations, ...(oldVdom.slice(oldStart, oldEnd + 1)))
+    }
+
     return operations
   }
 
@@ -54,8 +57,6 @@ export function compare(
   }
 
   let cursor = oldStart - 1
-  let targetIndex = 0
-  let target:VdomNode
   let hasNewStartNode = true;
   let hasNewEndNode = true
 
@@ -63,34 +64,34 @@ export function compare(
   while(++cursor <= oldEnd){
     if(compareNode(oldVdom[cursor], newVdom[newStart])){
       hasNewStartNode = false
-      target = oldVdom[cursor]
     }
 
     if(compareNode(oldVdom[cursor], newVdom[newEnd])){
       hasNewEndNode = false
-      target = oldVdom[cursor]
     }
   }
 
-  // parse traverse result
-  if(hasNewEndNode){
-    operations.push({name:'add', payload:{targetIndex:targetIndex, target}})
-    newEnd--;
-  }
+  if(hasNewEndNode || hasNewStartNode){
+    // parse traverse result
+    if(hasNewEndNode){
+      operations = add(operations, oldEnd, newVdom[newEnd])
+      newEnd--;
+    }
 
-  if(hasNewStartNode){
-    operations.push({name:'add', payload:{targetIndex:targetIndex, target}})
-    newStart++;
+    if(hasNewStartNode){
+      operations = add(operations, oldStart - 1, newVdom[newStart])
+      newStart++;
+    }
+
+    return compare(oldStart, oldEnd, newStart, newEnd, oldVdom, newVdom, operations)
   }
 
   cursor = oldStart - 1
   while(++cursor <= oldEnd){
     // move node to start of layer
     if(compareNode(oldVdom[cursor], newVdom[newStart])){
-      hasNewStartNode = false
-      target = oldVdom[cursor]
-      operations.push({name:'move',payload:{originIndex:cursor,targetIndex:oldStart}})
-      targetIndex = oldStart;
+      operations = move(operations, cursor, oldStart)
+      oldVdom[cursor] = undefined
       newStart++;
 
       // is last element
@@ -103,10 +104,8 @@ export function compare(
 
     // move node to end of layer
     if(compareNode(oldVdom[cursor], newVdom[newEnd])){
-      hasNewEndNode = false
-      target = oldVdom[cursor]
-      operations.push({name:'move',payload:{originIndex:cursor,targetIndex:oldEnd}})
-      targetIndex = oldEnd;//asd
+      operations = move(operations, cursor, oldEnd)
+      oldVdom[cursor] = undefined
       newEnd--;
 
       // is start element
