@@ -1,6 +1,6 @@
-import { Operation, MovePayload, RemovePayload, ReplaceAddPayload } from "./operation";
+import { Operation, MovePayload, RemovePayload, AddPayload } from "./operation";
 
-export type Payloads<T> = MovePayload | RemovePayload | ReplaceAddPayload<T>
+export type Payloads<T> = MovePayload | RemovePayload | AddPayload<T>
 
 export interface Group<T> {
   [index:string]:Payloads<T>[]
