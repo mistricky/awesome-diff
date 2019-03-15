@@ -121,5 +121,5 @@ export function compare(
 }
 
 function compareNode(oldVdom:VdomNode, newVdom:VdomNode){
-  return oldVdom && newVdom && oldVdom.key === newVdom.key
+  return (oldVdom && newVdom && oldVdom.key === newVdom.key) || oldVdom === newVdom
 }
