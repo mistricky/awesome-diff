@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "compile": "tsc",
+    "start:example":"node ./bld/main.js"
+  },
   "devDependencies": {
     "typescript": "^3.3.3333"
   }
