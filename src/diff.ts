@@ -1,4 +1,5 @@
 import { Operation, OPERATIONS, move, add, remove } from "./operation";
+import { insert } from "./utils";
 
 export interface VdomNode {
   key:string,
@@ -32,12 +33,14 @@ export function compare(
   if(oldStart > oldEnd || newStart > newEnd){
     // is add
     if(newStart <= newEnd){
-      operations = add(operations, oldEnd, newVdom.slice(newStart, newEnd + 1))
+      let waitAddItems = newVdom.slice(newStart, newEnd + 1)
+      oldVdom = insert(oldVdom, oldEnd, waitAddItems.slice().map(() => null))
+      operations = add(operations, oldEnd, waitAddItems)
     }
 
     // is remove
     if(oldStart <= oldEnd){
-      operations = remove(operations, ...(oldVdom.slice(oldStart, oldEnd + 1)))
+      operations = remove(operations,oldVdom ,oldStart, oldEnd)
     }
 
     return operations
@@ -56,17 +59,18 @@ export function compare(
     return compare(oldStart, oldEnd, newStart, newEnd, oldVdom, newVdom, operations)
   }
 
-  let cursor = oldStart - 1
   let hasNewStartNode = true;
   let hasNewEndNode = true
 
   // filter node that missing in oldVdom
-  while(++cursor <= oldEnd){
-    if(compareNode(oldVdom[cursor], newVdom[newStart])){
+  for(let cursor = oldStart; cursor <= oldEnd; cursor++) {
+    let node = oldVdom[cursor]
+
+    if(compareNode(node, newVdom[newStart])){
       hasNewStartNode = false
     }
 
-    if(compareNode(oldVdom[cursor], newVdom[newEnd])){
+    if(compareNode(node, newVdom[newEnd])){
       hasNewEndNode = false
     }
   }
@@ -76,23 +80,34 @@ export function compare(
     if(hasNewEndNode){
       operations = add(operations, oldEnd, newVdom[newEnd])
       newEnd--;
+
+      oldVdom.push(null)
     }
+
+
 
     if(hasNewStartNode){
       operations = add(operations, oldStart - 1, newVdom[newStart])
       newStart++;
+
+      oldVdom.unshift(null)
+      oldStart++;
+      oldEnd++;
     }
 
     return compare(oldStart, oldEnd, newStart, newEnd, oldVdom, newVdom, operations)
   }
 
-  cursor = oldStart - 1
-  while(++cursor <= oldEnd){
+  for(let cursor = oldStart; cursor <= oldEnd; cursor++) {
     // move node to start of layer
     if(compareNode(oldVdom[cursor], newVdom[newStart])){
-      operations = move(operations, cursor, oldStart)
+      operations = move(operations, oldVdom, cursor, oldStart)
       oldVdom[cursor] = undefined
       newStart++;
+
+      oldVdom.unshift(null)
+      oldStart++ // is add
+      oldEnd++;
 
       // is last element
       if(cursor === oldEnd){
@@ -104,9 +119,11 @@ export function compare(
 
     // move node to end of layer
     if(compareNode(oldVdom[cursor], newVdom[newEnd])){
-      operations = move(operations, cursor, oldEnd)
+      operations = move(operations, oldVdom, cursor, oldEnd)
       oldVdom[cursor] = undefined
       newEnd--;
+
+      oldVdom.push(null)
 
       // is start element
       if(cursor === oldStart){
