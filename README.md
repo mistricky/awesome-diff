@@ -1,2 +1,2 @@
 # awesome-diff
-Diff strategy from Vue.
+Diff strategy O(n).
