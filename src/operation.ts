@@ -15,7 +15,7 @@ export interface RemovePayload {
   targetIndex:number
 }
 
-export interface Operation<T extends OPERATIONS, ReplaceTarget = unknown> {
+export interface Operation<T extends OPERATIONS = OPERATIONS, ReplaceTarget = unknown> {
   name:T;
   payload:T extends 'move' ? MovePayload : T extends 'replace' | 'add' ? ReplaceAddPayload<ReplaceTarget> : RemovePayload
 }
