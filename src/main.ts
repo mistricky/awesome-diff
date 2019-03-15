@@ -15,15 +15,12 @@ let layer1:VdomNode[] = [
 
 let layer2:VdomNode[] = [
   {key:'b'},
+  {key:'i'},
+  {key:'h'},
   {key:'g'},
   {key:'f'},
   {key:'e'},
-  {key:'c'},
-  {key:'h'},
-  {key:'d'},
-  {key:'a'},
 ]
 
-const patches = diff(layer1, layer2)
-
-console.info(parseOperations(layer1, patches))
+const patches = diff(layer1,layer2)
+const patchResult = parseOperations(layer1, patches)
