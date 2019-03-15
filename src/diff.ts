@@ -34,13 +34,13 @@ export function compare(
     // is add
     if(newStart <= newEnd){
       let waitAddItems = newVdom.slice(newStart, newEnd + 1)
-      oldVdom = insert(oldVdom, oldEnd, waitAddItems.slice().map(() => null))
+      oldVdom = insert(oldVdom, oldEnd, ...waitAddItems.slice().map(() => null))
       operations = add(operations, oldEnd, waitAddItems)
     }
 
     // is remove
     if(oldStart <= oldEnd){
-      operations = remove(operations,oldVdom ,oldStart, oldEnd)
+      operations = remove(operations, oldVdom, oldStart, oldEnd)
     }
 
     return operations
@@ -101,7 +101,7 @@ export function compare(
   for(let cursor = oldStart; cursor <= oldEnd; cursor++) {
     // move node to start of layer
     if(compareNode(oldVdom[cursor], newVdom[newStart])){
-      operations = move(operations, oldVdom, cursor, oldStart)
+      operations = move(operations, oldVdom, cursor, oldStart - 1)
       oldVdom[cursor] = undefined
       newStart++;
 
