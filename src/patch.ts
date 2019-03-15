@@ -1,41 +1,39 @@
-import { Operation, MovePayload } from "./operation";
+import { Operation, MovePayload, AddPayload, RemovePayload, OPERATIONS } from "./operation";
 import { VdomNodeLayer, VdomNode } from "./diff";
-import { groupByOperation, insert } from "./utils";
+import { insert, move, remove } from "./utils";
 
 interface MoveMap {
   [index:string]:VdomNode[]
 }
 
-const OPERATION_HANDLER = {
-  move:(vdomNodeLayer:VdomNodeLayer,payloads:MovePayload[]) => {
-    let layer = vdomNodeLayer.slice()
-    const MOVE_MAP:MoveMap = {}
+interface OperationHandler {
+  [index:string]:(vdomNodeLayer:VdomNodeLayer, payload:MovePayload | AddPayload<VdomNode> | RemovePayload) => VdomNodeLayer
+}
 
-    for(let payload of payloads){
-      let {targetIndex, originIndex} = payload
-
-      MOVE_MAP[targetIndex] = (MOVE_MAP[targetIndex] || []).concat(layer[originIndex])
-      layer[originIndex] = undefined
-    }
-
-    let indexes = Object.keys(MOVE_MAP).sort((pre, next) => +next - +pre)
-    for(let index of indexes){
-      layer = insert(layer, +index, MOVE_MAP[index].reverse())
-    }
-
-    return layer.filter(node => node)
+const OPERATION_HANDLER:OperationHandler = {
+  move(vdomNodeLayer:VdomNodeLayer,payload:MovePayload) {
+    const {originIndex, targetIndex} = payload
+    let result= move(vdomNodeLayer, originIndex, targetIndex)
+    console.info(payload)
+    return result
+  },
+  add(vdomNodeLayer:VdomNodeLayer, payload:AddPayload<VdomNode>) {
+    const {targetIndex, targets} = payload
+    return insert(vdomNodeLayer, targetIndex, ...targets)
+  },
+  remove(vdomNodeLayer:VdomNodeLayer,payload:RemovePayload){
+    const {targetIndexes} = payload
+    return remove(vdomNodeLayer, ...targetIndexes)
   }
 }
 
-export function parseOperations(vdomNodeLayer:VdomNodeLayer,operations:Operation[]){
-  let layer = vdomNodeLayer.slice()
-  const operationGroup = groupByOperation(operations)
-  let result:VdomNodeLayer
+export function parseOperations(vdomNodeLayer:VdomNodeLayer, operations:Operation<OPERATIONS, VdomNode>[]){
+  let result = vdomNodeLayer.slice()
 
-  for(let operation of Object.keys(operationGroup)) {
-    let handler = OPERATION_HANDLER[operation]
+  for(let operation of operations) {
+    let handler = OPERATION_HANDLER[operation.name]
 
-    result = handler(layer, operationGroup[operation])
+    result = handler(result, operation.payload)
   }
 
   return result
