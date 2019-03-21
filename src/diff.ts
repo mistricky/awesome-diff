@@ -62,21 +62,21 @@ export function compare(
   let hasNewStartNode = true;
   let hasNewEndNode = true
 
-  if(newStart === newEnd){
-    hasNewEndNode = false;
-  } else {
-    // filter node that missing in oldVdom
-    for(let cursor = oldStart; cursor <= oldEnd; cursor++) {
-      let node = oldVdom[cursor]
+  // filter node that missing in oldVdom
+  for(let cursor = oldStart; cursor <= oldEnd; cursor++) {
+    let node = oldVdom[cursor]
 
-      if(compareNode(node, newVdom[newStart])){
-        hasNewStartNode = false
-      }
-
-      if(compareNode(node, newVdom[newEnd])){
-        hasNewEndNode = false
-      }
+    if(compareNode(node, newVdom[newStart])){
+      hasNewStartNode = false
     }
+
+    if(compareNode(node, newVdom[newEnd])){
+        hasNewEndNode = false
+    }
+  }
+
+  if (newStart === newEnd && hasNewEndNode && hasNewStartNode) {
+    hasNewEndNode = false;
   }
 
   if(hasNewEndNode || hasNewStartNode){
