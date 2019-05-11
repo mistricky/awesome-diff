@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .origin-layer, .target-layer {
+            display: flex;
+        }
+
+        .target-layer {
+            margin-top: 30px;
+        }
+
+        .layer > div {
+            width: 100px;
+            height: 100px;
+            margin-right: 30px;
+            border-radius: 50%;
+            transition: all 0.8s;
+            animation-fill-mode: forwards;
+        }
+
+        .disappear {
+            animation: disappear 1s 1;
+        }  
+
+        .display {
+            animation: display 1s 1;
+        }
+
+        @keyframes display {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes disappear {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+    </style>
+    <div id="root">
+        <div class="origin-layer layer"></div>
+        <div class="target-layer layer"></div>
+    </div>
+</head>
+<body>
+    <script type="module">
+        import {diff} from "./bld/src/diff.js";
+        import {layerGenerator} from './layer-generator.js'
+        import {browserParser} from "./browser-parser.js";
+
+        // mock data
+        const layer1 = [
+            {},
+            {},
+            {key:'d'},
+            {key:'a'},
+            {key:'b'},
+            {key:'e'},
+        ]
+
+        const layer2 = [
+            {},
+            {},
+            {key:'a'},
+            {key:'d'},
+            {key:'b'},
+            {key:'c'}
+        ]
+
+        const originLayer = layer1.map(layerGenerator)
+        const targetLayer = layer2.map(layerGenerator)
+        const originLayerDom = document.querySelector('.origin-layer')
+        const targetLayerDom = document.querySelector('.target-layer')
+
+        originLayerDom.append(...originLayer)
+        targetLayerDom.append(...targetLayer)
+
+        const patches = diff(layer1,layer2)
+
+        browserParser(patches, originLayerDom)
+        console.info(patches)
+    </script>
+</body>
+</html>

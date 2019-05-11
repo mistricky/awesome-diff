@@ -4,7 +4,7 @@
     "outDir": "bld",
     "target":"es5",
     "lib":["esnext", "dom"],
-    "module": "commonjs",
+    "module": "esnext",
     "declaration": true
   },
   "include": ["src/**/*.ts", "example/main.ts"],

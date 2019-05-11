@@ -142,5 +142,9 @@ export function compare(
 }
 
 function compareNode(oldVdom:VdomNode, newVdom:VdomNode){
+  if(oldVdom && newVdom && !oldVdom.key && !newVdom.key){
+    return true
+  }
+
   return (oldVdom && newVdom && oldVdom.key === newVdom.key) || oldVdom === newVdom
 }
